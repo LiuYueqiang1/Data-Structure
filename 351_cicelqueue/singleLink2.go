@@ -47,6 +47,7 @@ func main() {
 		no:   3,
 		name: "林冲",
 	}
+	fmt.Println(head)
 	addNode(head, hero1)
 	addNode(head, hero2)
 	addNode(head, hero3)
