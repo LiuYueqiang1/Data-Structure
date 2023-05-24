@@ -5,84 +5,98 @@ import (
 	"fmt"
 )
 
-// 使用数组来模拟一个栈的使用
+// 用数组模拟出栈、入栈的过程
 type Stack struct {
-	MaxTop int    // 表示我们栈最大可以存放数个数
-	Top    int    // 表示栈顶, 因为栈顶固定，因此我们直接使用Top
-	arr    [5]int // 数组模拟栈
+	stackMax int
+	stackTop int //栈顶
+	arr      [5]int
 }
 
 // 入栈
-func (this *Stack) Push(val int) (err error) {
-
-	//先判断栈是否满了
-	if this.Top == this.MaxTop-1 {
-		fmt.Println("stack full")
-		return errors.New("stack full")
+// 输入一个值，压入栈中。如果超过了栈的最大值,则入栈失败
+func (s *Stack) pushStack(val int) (err error) {
+	if s.stackTop >= s.stackMax-1 {
+		fmt.Println("stack full!")
+		return errors.New("stack full!")
 	}
-	this.Top++
-	//放入数据
-	this.arr[this.Top] = val
+	//压栈
+	s.stackTop++
+	//压入输入的值
+	s.arr[s.stackTop] = val
 	return
 }
 
 // 出栈
-func (this *Stack) Pop() (val int, err error) {
-	//判断栈是否空
-	if this.Top == -1 {
-		fmt.Println("stack empty!")
-		return 0, errors.New("stack empty")
+// 出栈应该遵循先入后出的原则，从栈顶开始出，如果栈空，则报错
+func (s *Stack) popStack() (err error) {
+	// 如果栈空了，则显示err，并返回
+	if s.stackTop == -1 {
+		fmt.Println("stack is nil!")
+		return errors.New("stack is nil!")
 	}
-
-	//先取值，再 this.Top--
-	val = this.arr[this.Top]
-	this.Top--
-	return val, nil
-
+	// 开始出栈、怎么出栈？
+	// 从顶部往外出，故初始值为s.stackTop
+	for i := s.stackTop; i >= 0; i-- {
+		s.stackTop--
+		fmt.Printf("arr[%d]=%d out\n", i, s.arr[i])
+	}
+	return
 }
 
-// 遍历栈，注意需要从栈顶开始遍历
-func (this *Stack) List() {
-	//先判断栈是否为空
-	if this.Top == -1 {
-		fmt.Println("stack empty")
+// 出栈2，一个一个的出
+func (s *Stack) popStack2() (val int, err error) {
+	// 如果栈空了，则显示err，并返回
+	if s.stackTop == -1 {
+		fmt.Println("stack is nil!")
+		return 0, errors.New("stack is nil!")
+	}
+	// 开始出栈、怎么出栈？
+	// 从顶部往外出，故初始值为s.stackTop
+	val = s.arr[s.stackTop]
+	fmt.Printf("arr[%d]=%d out\n", s.stackTop, s.arr[s.stackTop])
+	s.stackTop--
+	return val, nil
+}
+
+// 显示栈的列表
+func (s *Stack) ListStack() {
+	// 如果栈为空的话则显示空，且返回
+	fmt.Println("栈中内容为：")
+	if s.stackTop == -1 {
+		fmt.Println("stack nil!")
 		return
 	}
-	fmt.Println("栈的情况如下：")
-	for i := this.Top; i >= 0; i-- {
-		fmt.Printf("arr[%d]=%d\n", i, this.arr[i])
-	}
+	// 遍历这个栈
+	//不能这样嗷，不能遍历数组，而是以 s.stackTop 去遍历，所以 以数组遍历是有错误的。
+	//for i, v := range s.arr {
+	//	fmt.Printf("arr[%d] is %d\n", i, v)
+	//}
+	//
 
+	//从栈顶开始遍历的
+	for i := s.stackTop; i >= 0; i-- {
+		fmt.Printf("arr[%d]=%d\n", i, s.arr[i])
+	}
 }
 
 func main() {
-
 	stack := &Stack{
-		MaxTop: 5,  // 表示最多存放5个数到栈中
-		Top:    -1, // 当栈顶为-1，表示栈为空
+		stackMax: 5,
+		stackTop: -1,
 	}
+	stack.pushStack(1)
+	stack.pushStack(2)
+	stack.pushStack(6)
+	stack.pushStack(7)
+	stack.pushStack(10)
 
-	//入栈
-	stack.Push(1)
-	stack.Push(2)
-	stack.Push(3)
-	stack.Push(4)
-	stack.Push(5)
+	fmt.Println("显示：")
+	stack.ListStack()
 
-	//显示
-	stack.List()
-	val, _ := stack.Pop()
-	fmt.Println("出栈val=", val) // 5
-	//显示
-	stack.List() //
+	fmt.Println("出栈：")
+	stack.popStack2()
 
-	fmt.Println()
-	val, _ = stack.Pop()
-	val, _ = stack.Pop()
-	val, _ = stack.Pop()
-	val, _ = stack.Pop()
-	val, _ = stack.Pop()       // 出错
-	fmt.Println("出栈val=", val) // 5
-	//显示
-	stack.List() //
+	fmt.Println("显示：")
+	stack.ListStack()
+
 }
