@@ -6,58 +6,82 @@ import (
 	"strconv"
 )
 
-// 使用数组来模拟一个栈的使用
+// 用数组模拟出栈、入栈的过程
 type Stack struct {
-	MaxTop int     // 表示我们栈最大可以存放数个数
-	Top    int     // 表示栈顶, 因为栈顶固定，因此我们直接使用Top
-	arr    [20]int // 数组模拟栈
+	stackMax int
+	stackTop int //栈顶
+	arr      [20]int
 }
 
 // 入栈
-func (this *Stack) Push(val int) (err error) {
-
-	//先判断栈是否满了
-	if this.Top == this.MaxTop-1 {
-		fmt.Println("stack full")
-		return errors.New("stack full")
+// 输入一个值，压入栈中。如果超过了栈的最大值,则入栈失败
+func (s *Stack) pushStack(val int) (err error) {
+	if s.stackTop >= s.stackMax-1 {
+		fmt.Println("stack full!")
+		return errors.New("stack full!")
 	}
-	this.Top++
-	//放入数据
-	this.arr[this.Top] = val
+	//压栈
+	s.stackTop++
+	//压入输入的值
+	s.arr[s.stackTop] = val
 	return
 }
 
 // 出栈
-func (this *Stack) Pop() (val int, err error) {
-	//判断栈是否空
-	if this.Top == -1 {
-		fmt.Println("stack empty!")
-		return 0, errors.New("stack empty")
+// 出栈应该遵循先入后出的原则，从栈顶开始出，如果栈空，则报错
+func (s *Stack) popStack() (err error) {
+	// 如果栈空了，则显示err，并返回
+	if s.stackTop == -1 {
+		fmt.Println("stack is nil!")
+		return errors.New("stack is nil!")
 	}
-
-	//先取值，再 this.Top--
-	val = this.arr[this.Top]
-	this.Top--
-	return val, nil
-
+	// 开始出栈、怎么出栈？
+	// 从顶部往外出，故初始值为s.stackTop
+	for i := s.stackTop; i >= 0; i-- {
+		s.stackTop--
+		fmt.Printf("arr[%d]=%d out\n", i, s.arr[i])
+	}
+	return
 }
 
-// 遍历栈，注意需要从栈顶开始遍历
-func (this *Stack) List() {
-	//先判断栈是否为空
-	if this.Top == -1 {
-		fmt.Println("stack empty")
+// 出栈2，一个一个的出
+func (s *Stack) popStack2() (val int, err error) {
+	// 如果栈空了，则显示err，并返回
+	if s.stackTop == -1 {
+		fmt.Println("stack is nil!")
+		return 0, errors.New("stack is nil!")
+	}
+	// 开始出栈、怎么出栈？
+	// 从顶部往外出，故初始值为s.stackTop
+	val = s.arr[s.stackTop]
+	//	fmt.Printf("arr[%d]=%d out\n", s.stackTop, s.arr[s.stackTop])
+	s.stackTop--
+	return val, nil
+}
+
+// 显示栈的列表
+func (s *Stack) ListStack() {
+	// 如果栈为空的话则显示空，且返回
+	fmt.Println("栈中内容为：")
+	if s.stackTop == -1 {
+		fmt.Println("stack nil!")
 		return
 	}
-	fmt.Println("栈的情况如下：")
-	for i := this.Top; i >= 0; i-- {
-		fmt.Printf("arr[%d]=%d\n", i, this.arr[i])
-	}
+	// 遍历这个栈
+	//不能这样嗷，不能遍历数组，而是以 s.stackTop 去遍历，所以 以数组遍历是有错误的。
+	//for i, v := range s.arr {
+	//	fmt.Printf("arr[%d] is %d\n", i, v)
+	//}
+	//
 
+	//从栈顶开始遍历的
+	for i := s.stackTop; i >= 0; i-- {
+		fmt.Printf("arr[%d]=%d\n", i, s.arr[i])
+	}
 }
 
-// 判断一个字符是不是一个运算符[+, - , * , /]
-func (this *Stack) IsOper(val int) bool {
+// 判断一个字符是不是运算符[+,-,*,/]
+func (s *Stack) IsOper(val int) bool {
 
 	if val == 42 || val == 43 || val == 45 || val == 47 {
 		return true
@@ -66,9 +90,9 @@ func (this *Stack) IsOper(val int) bool {
 	}
 }
 
-// 运算的方法
-func (this *Stack) Cal(num1 int, num2 int, oper int) int {
-	res := 0
+// 运算
+func (s *Stack) Cal(num1 int, num2 int, oper int) (res int) {
+	res = 0
 	switch oper {
 	case 42:
 		res = num2 * num1
@@ -79,14 +103,13 @@ func (this *Stack) Cal(num1 int, num2 int, oper int) int {
 	case 47:
 		res = num2 / num1
 	default:
-		fmt.Println("运算符错误.")
+		errors.New("运算符无效")
 	}
 	return res
 }
 
-// 编写一个方法，返回某个运算符的优先级[程序员定义]
-// [* / => 1 + - => 0]
-func (this *Stack) Priority(oper int) int {
+// 判断优先级
+func (s *Stack) Priority(oper int) int {
 	res := 0
 	if oper == 42 || oper == 47 {
 		res = 1
@@ -98,104 +121,93 @@ func (this *Stack) Priority(oper int) int {
 
 func main() {
 
-	//数栈
-	numStack := &Stack{
-		MaxTop: 20,
-		Top:    -1,
+	//创建一个数栈、一个符号栈
+	numStack := Stack{
+		stackMax: 20,
+		stackTop: -1,
 	}
-	//符号栈
-	operStack := &Stack{
-		MaxTop: 20,
-		Top:    -1,
+	operStack := Stack{
+		stackMax: 20,
+		stackTop: -1,
 	}
 
-	exp := "30+30*6-4-6"
-	//定义一个index ，帮助扫描exp
-	index := 0
-	//为了配合运算，我们定义需要的变量
+	exp := "30+30*4-3+10"
+
 	num1 := 0
 	num2 := 0
-	oper := 0
-	result := 0
+	res := 0
+	oper := 0 //运算符的ASCII码
+	index := 0
+
 	keepNum := ""
-
+	// 如果operStack是一个空栈，则直接入栈
 	for {
-		//这里我们需要增加一个逻辑，
-		//处理多位数的问题
-		ch := exp[index : index+1] // 字符串.
-		//ch ==>"+" ===> 43
-		temp := int([]byte(ch)[0])  // 就是字符对应的ASCiI码
-		if operStack.IsOper(temp) { // 说明是符号
+		// 获取到当前的字母
+		ch := exp[index : index+1]
+		// 判断是否为运算符
+		temp := int([]byte(ch)[0]) // 转换为ASCII码
 
-			//如果operStack  是一个空栈， 直接入栈
-			if operStack.Top == -1 { //空栈
-				operStack.Push(temp)
-			} else {
-				//如果发现opertStack栈顶的运算符的优先级大于等于当前准备入栈的运算符的优先级
-				//，就从符号栈pop出，并从数栈也pop 两个数，进行运算，运算后的结果再重新入栈
-				//到数栈， 当前符号再入符号栈
-				if operStack.Priority(operStack.arr[operStack.Top]) >=
-					operStack.Priority(temp) {
-					num1, _ = numStack.Pop()
-					num2, _ = numStack.Pop()
-					oper, _ = operStack.Pop()
-					result = operStack.Cal(num1, num2, oper)
-					//将计算结果重新入数栈
-					numStack.Push(result)
-					//当前的符号压入符号栈
-					operStack.Push(temp)
+		//判断是否为符号
+		if operStack.IsOper(temp) { //如果是运算符
+			if operStack.stackTop == -1 { //如果是空栈
+				operStack.pushStack(temp) //直接入栈
+			} else { //不是空栈
+				// 如果发现opertStack栈顶的运算符的优先级大于等于当前准备入栈的运算符的优先级
+				//就从符号栈pop出，并从数栈也 pop 两个数，进行运算，运算后的结果再重新入栈到数栈， 当前符号再入符号栈
+				if operStack.Priority(operStack.arr[operStack.stackTop]) > operStack.Priority(temp) {
+					num1, _ = numStack.popStack2()
+					num2, _ = numStack.popStack2()
+					oper, _ = operStack.popStack2()
+					res = operStack.Cal(num1, num2, oper) //得到结果
 
-				} else {
-					operStack.Push(temp)
+					//入栈
+					numStack.pushStack(res)
+					operStack.pushStack(temp)
+				} else { // 2.2 符号直接入栈
+					operStack.pushStack(temp)
 				}
-
 			}
 
-		} else { //说明是数
-
+		} else { //如果是数
 			//处理多位数的思路
 			//1.定义一个变量 keepNum string, 做拼接
 			keepNum += ch
 			//2.每次要向index的后面字符测试一下，看看是不是运算符，然后处理
-			//如果已经到表达最后，直接将 keepNum
+			//如果已经到表达最后，直接将 keepNum 转化为数字
 			if index == len(exp)-1 {
-				val, _ := strconv.ParseInt(keepNum, 10, 64)
-				numStack.Push(int(val))
+				val, _ := strconv.Atoi(keepNum)
+				//压入数字栈
+				numStack.pushStack(val)
 			} else {
-				//向index 后面测试看看是不是运算符 [index]
+				// 向后找一位看是否为运算符
 				if operStack.IsOper(int([]byte(exp[index+1 : index+2])[0])) {
-					val, _ := strconv.ParseInt(keepNum, 10, 64)
-					numStack.Push(int(val))
+					//如果是运算符
+					val2, _ := strconv.Atoi(keepNum)
+					numStack.pushStack(val2)
 					keepNum = ""
 				}
 			}
 		}
-
 		//继续扫描
 		//先判断index是否已经扫描到计算表达式的最后
 		if index+1 == len(exp) {
 			break
 		}
 		index++
-
 	}
-
 	//如果扫描表达式 完毕，依次从符号栈取出符号，然后从数栈取出两个数，
 	//运算后的结果，入数栈，直到符号栈为空
 	for {
-		if operStack.Top == -1 {
-			break //退出条件
+		if operStack.stackTop == -1 {
+			break
 		}
-		num1, _ = numStack.Pop()
-		num2, _ = numStack.Pop()
-		oper, _ = operStack.Pop()
-		result = operStack.Cal(num1, num2, oper)
-		//将计算结果重新入数栈
-		numStack.Push(result)
-
+		num1, _ = numStack.popStack2()
+		num2, _ = numStack.popStack2()
+		oper, _ = operStack.popStack2()
+		res = operStack.Cal(num1, num2, oper) //得到结果
+		numStack.pushStack(res)
 	}
-
 	//如果我们的算法没有问题，表达式也是正确的，则结果就是numStack最后数
-	res, _ := numStack.Pop()
-	fmt.Printf("表达式%s = %v", exp, res)
+	rest, _ := numStack.popStack2()
+	fmt.Printf("表达式%s = %v", exp, rest)
 }
