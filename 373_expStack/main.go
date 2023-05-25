@@ -122,11 +122,11 @@ func (s *Stack) Priority(oper int) int {
 func main() {
 
 	//创建一个数栈、一个符号栈
-	numStack := Stack{
+	numStack := &Stack{
 		stackMax: 20,
 		stackTop: -1,
 	}
-	operStack := Stack{
+	operStack := &Stack{
 		stackMax: 20,
 		stackTop: -1,
 	}
@@ -153,8 +153,11 @@ func main() {
 				operStack.pushStack(temp) //直接入栈
 			} else { //不是空栈
 				// 如果发现opertStack栈顶的运算符的优先级大于等于当前准备入栈的运算符的优先级
-				//就从符号栈pop出，并从数栈也 pop 两个数，进行运算，运算后的结果再重新入栈到数栈， 当前符号再入符号栈
-				if operStack.Priority(operStack.arr[operStack.stackTop]) > operStack.Priority(temp) {
+				//就从符号栈pop出，并从数栈也 pop 两个数，进行运算，运算后的结果再重新入栈到数栈， 下一个符号入符号栈
+				if operStack.Priority(operStack.arr[operStack.stackTop]) >= operStack.Priority(temp) {
+					//必须是 >= 如果栈顶的的优先级等于新加入的 temp ，也是先算原来栈中的，否则就变成从栈顶往下算了，先算后面的数了
+					//则变成先算 10+3=13 再算120-13=107 ，再算30+107=137
+					//所以必须是 >= 保证了先算先入栈的符号，先入栈符号的优先级 >= 后入栈的
 					num1, _ = numStack.popStack2()
 					num2, _ = numStack.popStack2()
 					oper, _ = operStack.popStack2()
@@ -162,7 +165,7 @@ func main() {
 
 					//入栈
 					numStack.pushStack(res)
-					operStack.pushStack(temp)
+					operStack.pushStack(temp) //这个temp指的是下一个符号了
 				} else { // 2.2 符号直接入栈
 					operStack.pushStack(temp)
 				}
