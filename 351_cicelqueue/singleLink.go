@@ -50,7 +50,7 @@ func InsertHeroNode2(head *HeroNode, newHeroNode *HeroNode) {
 			flag = false
 			break
 		}
-		temp = temp.next
+		temp = temp.next //插入到temp后面
 	}
 
 	if !flag {
@@ -104,9 +104,11 @@ func ListHeroNode(head *HeroNode) {
 		//判断是否链表后
 		temp = temp.next
 		if temp.next == nil {
+			fmt.Println("test:", temp)
 			break
 		}
 	}
+
 }
 
 func main() {
@@ -133,17 +135,17 @@ func main() {
 		nickname: "豹子头",
 	}
 
-	// hero4 := &HeroNode{
-	// 	no : 3,
-	// 	name : "吴用",
-	// 	nickname : "智多星",
-	// }
+	hero4 := &HeroNode{
+		no:       4,
+		name:     "吴用",
+		nickname: "智多星",
+	}
 
 	//3. 加入
 	InsertHeroNode2(head, hero3)
 	InsertHeroNode2(head, hero1)
 	InsertHeroNode2(head, hero2)
-
+	InsertHeroNode2(head, hero4)
 	// 4. 显示
 	ListHeroNode(head)
 
